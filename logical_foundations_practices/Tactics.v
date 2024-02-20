@@ -282,7 +282,16 @@ Example injection_ex3 : forall (X : Type) (x y z : X) (l j : list X),
   j = z :: l ->
   x = y.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros.
+  (* Yes, you can write a graph yourself and you will find the head ele will be the same (x = z) and the rest of list, due to the constructor of the list  *)
+  injection H.
+  intros.
+  assert (H': z::l = y::l). { rewrite H1. symmetry. apply H0.  }
+  - injection H' as Hinj.
+    rewrite H2. apply Hinj.
+Qed.
+
+  
 (** [] *)
 
 (** So much for injectivity of constructors.  What about disjointness? *)
@@ -332,7 +341,7 @@ Example discriminate_ex3 :
     x :: y :: l = [] ->
     x = z.
 Proof.
-  (* FILL IN HERE *) Admitted.
+intros X x y z l j contra. discriminate contra. Qed.
 (** [] *)
 
 (** For a more useful example, we can use [discriminate] to make a
@@ -646,7 +655,14 @@ Proof.
 Theorem eqb_true : forall n m,
   n =? m = true -> n = m.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. induction n as [| n' IHn'].
+  - simpl. intros m H. destruct m as [| m'] eqn:E.
+    + reflexivity.
+    + discriminate H.
+  - simpl. intros m H. destruct m as [| m'] eqn:E.
+    + discriminate H.
+    + apply IHn' in H. rewrite H. reflexivity.
+    Qed.
 (** [] *)
 
 (** **** Exercise: 2 stars, advanced (eqb_true_informal)
@@ -669,8 +685,23 @@ Theorem plus_n_n_injective : forall n m,
   n + n = m + m ->
   n = m.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros n. induction n as [| n' IHn'].
+  - simpl. intros m H. destruct m as [| m'] eqn:E.
+    + reflexivity.
+    + discriminate H.
+  - simpl. intros m H. destruct m as [| m'] eqn:E.
+    + discriminate H.
+    + simpl in H. 
+      (* S (n + m) = n + (S m). *)
+      rewrite <- plus_n_Sm in H.
+      rewrite <- plus_n_Sm in H. 
+      injection H as IHinj.
+      apply IHn' in IHinj.
+      rewrite IHinj.
+      reflexivity.
+Qed.
+
+(** [] *) 
 
 (** The strategy of doing fewer [intros] before an [induction] to
     obtain a more general IH doesn't always work; sometimes some
