@@ -204,22 +204,38 @@ Proof.
 Theorem mul_0_r : forall n:nat,
   n * 0 = 0.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. induction n as [| n' IHn'].
+  - (* n = 0 *)    reflexivity.
+  - (* n = S n' *) simpl. rewrite -> IHn'. reflexivity.  Qed.
 
 Theorem plus_n_Sm : forall n m : nat,
   S (n + m) = n + (S m).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m. induction n as [| n' IHn'].
+  - (* n = 0 *)    reflexivity.
+  - (* n = S n' *) simpl. rewrite -> IHn'. reflexivity.  Qed.
 
 Theorem add_comm : forall n m : nat,
   n + m = m + n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+intros n m. induction n as [| n' IHn'].
+- (* n = 0 *)    simpl. rewrite <- plus_n_O. reflexivity.
+- (* n = S n' *) simpl. rewrite <- plus_n_Sm. rewrite <- IHn'. reflexivity.  
+Qed.
 
 Theorem add_assoc : forall n m p : nat,
   n + (m + p) = (n + m) + p.
 Proof.
-  (* FILL IN HERE *) Admitted.
+intros n m p. induction n as [| n' IHn'].
+- (* n = 0 *)    reflexivity.
+- (* n = S n' *) simpl. rewrite -> IHn'. reflexivity.  Qed.
+
+(** [] *)
+
+(** **** Exercise: 2 stars, standard, optional (double_plus)
+
+    Consider the following function, which doubles its argument: *)
+
 (** [] *)
 
 (** **** Exercise: 2 stars, standard (double_plus)
@@ -236,7 +252,19 @@ Fixpoint double (n:nat) :=
 
 Lemma double_plus : forall n, double n = n + n .
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. induction n as [| n' IHn'].
+  - (* n = 0 *)    reflexivity.
+  - (* n = S n' *) simpl. rewrite -> IHn'. rewrite -> plus_n_Sm. reflexivity.  Qed.
+
+(** [] *)
+
+(** **** Exercise: 2 stars, standard, optional (evenb_S)
+
+    One inconveninent aspect of our definition of [evenb n] is that it
+    may need to perform a recursive call on [n - 2]. This makes proofs
+    about [evenb n] harder when done by induction on [n], since we may
+    need an induction hypothesis about [n - 2]. The following lemma
+    gives an alternative characterization of [evenb (S n)]: *)
 (** [] *)
 
 (** **** Exercise: 2 stars, standard (eqb_refl)
@@ -246,7 +274,16 @@ Proof.
 Theorem eqb_refl : forall n : nat,
   (n =? n) = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. induction n as [| n' IHn'].
+  - (* n = 0 *)    reflexivity.
+  - (* n = S n' *) simpl. rewrite -> IHn'. reflexivity.  Qed.
+
+(** [] *)
+
+(** **** Exercise: 2 stars, standard, optional (plus_swap)
+
+    Use [assert] to help prove this theorem.  You shouldn't need to
+    use induction. *)
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, optional (even_S)
@@ -261,7 +298,17 @@ Proof.
 Theorem even_S : forall n : nat,
   even (S n) = negb (even n).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n. induction n as [| n' IHn'].
+  - (* n = 0 *)    reflexivity.
+  - (* n = S n' *) rewrite -> IHn'. rewrite -> negb_involutive. reflexivity.  Qed.
+
+(** [] *)
+
+(** **** Exercise: 3 stars, standard, recommended (ev_double)
+
+    Here's an exercise that just requires applying existing lemmas. No
+    induction or even case analysis is needed, but some of the rewriting
+    may be a bit tricky.  You'll want the [plus_n_Sm] lemma. *)
 (** [] *)
 
 (* ################################################################# *)
@@ -489,16 +536,46 @@ Definition manual_grade_for_eqb_refl_informal : option (nat*string) := None.
 Theorem add_shuffle3 : forall n m p : nat,
   n + (m + p) = m + (n + p).
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m p. rewrite -> add_assoc. rewrite -> add_assoc.
+  assert (H: n + m = m + n).
+  { rewrite add_comm. reflexivity. }
+  rewrite -> H. reflexivity.  Qed.
+
+(** [] *)
+
+(** **** Exercise: 2 stars, standard, optional (binary_commute)
+
+    The next theorem proves that the [double] function behaves as
+    expected on binary numbers. *)
 
 (** Now prove commutativity of multiplication.  You will probably want
     to look for (or define and prove) a "helper" theorem to be used in
     the proof of this one. Hint: what is [n * (1 + k)]? *)
 
-Theorem mul_comm : forall m n : nat,
-  m * n = n * m.
+Theorem mult_comm_lemma : forall n m, m * S n = m + m * n.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m.
+  induction m as [|p].
+    simpl. reflexivity.
+    simpl. rewrite -> add_shuffle3. rewrite -> IHp. reflexivity.
+Qed.
+
+Theorem mult_comm : forall m n : nat, m * n = n * m.
+Proof.
+  intros m n.
+  induction n as [|p].
+    simpl. rewrite -> mul_0_r. reflexivity.
+    simpl. rewrite <- IHp. rewrite -> mult_comm_lemma. reflexivity.
+    (* induction m as [|q].
+      simpl. reflexivity.
+      simpl. rewrite -> mult_comm_lemma. rewrite -> plus_swap. reflexivity. *)
+Qed.
+    
+(** [] *)
+
+(** **** Exercise: 3 stars, standard, optional (more_exercises)
+
+    Here are a few more theorems to practice with. *)
 (** [] *)
 
 (** **** Exercise: 2 stars, standard, optional (plus_leb_compat_l)
@@ -509,10 +586,15 @@ Proof.
 
 Check leb.
 
-Theorem plus_leb_compat_l : forall n m p : nat,
+(* Theorem plus_leb_compat_l : forall n m p : nat,
   n <=? m = true -> (p + n) <=? (p + m) = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros n m p.
+  induction p as [|p IHp].
+  - simpl. rewrite <- IHp.
+
+Qed. *)
+
 
 (** [] *)
 
