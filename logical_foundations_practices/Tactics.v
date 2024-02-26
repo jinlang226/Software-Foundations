@@ -1000,21 +1000,29 @@ Fixpoint split {X Y : Type} (l : list (X*Y))
 (** Prove that [split] and [combine] are inverses in the following
     sense: *)
 
-(* Theorem combine_split : forall X Y (l : list (X * Y)) l1 l2,
+Theorem combine_split : forall X Y (l : list (X * Y)) l1 l2,
   split l = (l1, l2) ->
   combine l1 l2 = l.
-Proof.
-  intros X Y.
-  intros l.
-  induction l as [| n l' IHl'].
-  - simpl. intros l1 l2 H. injection H as H1 H2. rewrite <- H1, <-H2. reflexivity.
-  - destruct n as [n1 n2]. simpl. destruct (split l'). 
-    intros l1 l2 H. injection H as H1 H2.
-    rewrite <- H1, <- H2. simpl. 
-    assert ( Hc : combine x y = l'). 
-      { apply IHl'. reflexivity. } 
-    apply Hc.
-Qed. *)
+  Proof.
+  intros X Y l.
+  induction l as [| h t IH].
+  - intros l1 l2 H.
+    injection H as H1 H2.
+    rewrite <- H1.
+    rewrite <- H2.
+    reflexivity.
+  - intros l1' l2' H.
+    destruct h as [a b].
+    simpl in H.
+    destruct (split t) as [t1 t2].
+    injection H as H1 H2.
+    rewrite <- H1.
+    rewrite <- H2.
+    simpl.
+    rewrite -> IH.
+    reflexivity.
+    reflexivity.
+Qed.
 
 (** The [eqn:] part of the [destruct] tactic is optional; although
     we've chosen to include it most of the time, for the sake of
