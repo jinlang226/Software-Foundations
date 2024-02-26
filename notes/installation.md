@@ -1,7 +1,7 @@
 # Install coq-iris
 
 ```
-opam switch create ocaml.4.14.0
+opam switch create ocaml.5.0.0
 eval $(opam env --switch=ocaml.5.0.0)
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam repo add iris-dev https://gitlab.mpi-sws.org/iris/opam.git
