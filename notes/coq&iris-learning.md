@@ -39,9 +39,118 @@ A meta language is a language used to express, define, or model another language
 
 
 
-# Paper: Interactive Proofs in Higher-Order Concurrent Separation Logic
+## Object Logic
 
-## Shallow Embedding
+- State
+- Prop
 
-prove P and 
 
+
+# Paper: Interactive Proofs in Higher-Order Concurrent Separation Logic, [Video](https://www.youtube.com/watch?v=LSYiMjubeHs&ab_channel=POPLPARIS2017)
+
+## Motivation
+
+- interactive proofs instead of automating everything
+  - Concurrent Algorithms in Iris
+  - Logical relations in Iris
+  - ...
+
+
+
+## To embed a logic in to a proof assistant
+
+### Shallow Embedding
+
+In a shallow embedding, the constructs of the object logic (the logic being represented) are directly mapped to the constructs of the meta-language (the language in which the logic is being represented). The meta-language's own syntax and semantics are used to represent and reason about the object logic.
+
+```haskell
+-- Shallow embedding
+type Expr = Integer
+
+-- Functions directly use Haskell's arithmetic
+add :: Expr -> Expr -> Expr
+add x y = x + y
+
+multiply :: Expr -> Expr -> Expr
+multiply x y = x * y
+
+-- Example usage:
+-- The expression (2 + 3) * 4 is represented and evaluated using Haskell's arithmetic
+example :: Expr
+example = multiply (add 2 3) 4
+```
+
+
+
+### Deep Embedding
+
+In a deep embedding, the constructs of the object logic are represented as data structures within the meta-language. This involves creating explicit representations for all syntax elements and possibly their semantics as well.
+
+```haskell
+-- Deep embedding
+data Expr
+  = Lit Integer      -- A literal value
+  | Add Expr Expr    -- Addition of two expressions
+  | Mul Expr Expr    -- Multiplication of two expressions
+
+-- An evaluator function that traverses the AST and computes a value
+eval :: Expr -> Integer
+eval (Lit n)     = n
+eval (Add e1 e2) = eval e1 + eval e2
+eval (Mul e1 e2) = eval e1 * eval e2
+
+-- Example usage:
+-- The expression (2 + 3) * 4 is represented as an AST
+example :: Expr
+example = Mul (Add (Lit 2) (Lit 3)) (Lit 4)
+
+-- The expression can be evaluated to a value
+result :: Integer
+result = eval example
+
+```
+
+
+
+## Contexts in IPM
+
+variable and pure Coq hypotheses 
+
+---------------------------------------\
+
+Persistent hypotheses in object logic
+
+--------------------------------------- $\square$
+
+Spatial hypotheses in object logic 
+
+---------------------------------------*
+
+Goal in object logic
+
+
+
+## Proving Hoare Triples
+
+The "Texan triple" [ {{{ P }}} e {{{ RET v, Q }}} ] is syntactic sugar for:
+
+p -* WP e {{ v, Q v}}
+
+ ∀ Φ, P -∗ (Q -∗ Φ v) -∗ WP e {{ v, Φ v }}
+
+ Which is logically equivalent to [ P -∗ WP e {{ x, x = v ∗ Q }} ]
+
+
+
+## Others
+
+- φ - “fai”  “fi”
+- ψ - “sai” or “psi”
+
+
+
+# Iris References
+
+[Heap Lang](https://gitlab.mpi-sws.org/iris/iris/-/blob/master/docs/heap_lang.md?ref_type=heads)
+
+[tactics](https://gitlab.mpi-sws.org/iris/iris/-/blob/master/docs/proof_mode.md?ref_type=heads)
