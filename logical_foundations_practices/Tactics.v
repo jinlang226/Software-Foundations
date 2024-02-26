@@ -806,9 +806,18 @@ Proof.
 Theorem nth_error_after_last: forall (n : nat) (X : Type) (l : list X),
   length l = n ->
   nth_error l n = None.
-Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  Proof.
+  (* Prove by induction on [l] *)
+  intros n X l.
+  generalize dependent n.
+  generalize dependent X.
+  induction l as [| hd' l' IHl'].
+  - simpl. reflexivity.
+  - destruct n.
+    + simpl. intros. discriminate H.
+    + simpl. intros. injection H as IHinj.
+      apply IHl' in IHinj. apply IHinj.
+Qed.
 
 (* ################################################################# *)
 (** * Unfolding Definitions *)
@@ -991,12 +1000,21 @@ Fixpoint split {X Y : Type} (l : list (X*Y))
 (** Prove that [split] and [combine] are inverses in the following
     sense: *)
 
-Theorem combine_split : forall X Y (l : list (X * Y)) l1 l2,
+(* Theorem combine_split : forall X Y (l : list (X * Y)) l1 l2,
   split l = (l1, l2) ->
   combine l1 l2 = l.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  intros X Y.
+  intros l.
+  induction l as [| n l' IHl'].
+  - simpl. intros l1 l2 H. injection H as H1 H2. rewrite <- H1, <-H2. reflexivity.
+  - destruct n as [n1 n2]. simpl. destruct (split l'). 
+    intros l1 l2 H. injection H as H1 H2.
+    rewrite <- H1, <- H2. simpl. 
+    assert ( Hc : combine x y = l'). 
+      { apply IHl'. reflexivity. } 
+    apply Hc.
+Qed. *)
 
 (** The [eqn:] part of the [destruct] tactic is optional; although
     we've chosen to include it most of the time, for the sake of
@@ -1070,7 +1088,19 @@ Theorem bool_fn_applied_thrice :
   forall (f : bool -> bool) (b : bool),
   f (f (f b)) = f b.
 Proof.
-  (* FILL IN HERE *) Admitted.
+  intros f b.
+  destruct (b) eqn:Heq1.
+  - destruct (f true) eqn:Heq2.
+    + rewrite Heq2. rewrite Heq2. reflexivity.
+    + destruct (f false) eqn:Heq3.
+      * apply Heq2.
+      * apply Heq3.
+  - destruct (f false) eqn:Heq2.
+    + destruct (f true) eqn:Heq3.
+      * apply Heq3.
+      * apply Heq2.
+    + rewrite Heq2. apply Heq2.
+Qed.
 (** [] *)
 
 (* ################################################################# *)
@@ -1150,8 +1180,25 @@ Proof.
 (** **** Exercise: 3 stars, standard (eqb_sym) *)
 Theorem eqb_sym : forall (n m : nat),
   (n =? m) = (m =? n).
+(* Proof.
+  intro n.
+  induction n as [| n' IH].
+  - intro m.
+    destruct m as [| m'].
+    + reflexivity.
+    + reflexivity.
+  - intro m.
+    destruct m as [| m'].
+    + reflexivity.
+    + simpl. apply IH.
+Qed. *)
+
 Proof.
-  (* FILL IN HERE *) Admitted.
+  induction n.
+  - destruct m. reflexivity. reflexivity.
+  - destruct m. reflexivity. apply IHn.
+Qed.
+
 (** [] *)
 
 (** **** Exercise: 3 stars, advanced, optional (eqb_sym_informal)
@@ -1172,8 +1219,14 @@ Theorem eqb_trans : forall n m p,
   m =? p = true ->
   n =? p = true.
 Proof.
-  (* FILL IN HERE *) Admitted.
-(** [] *)
+  induction n.
+  - destruct m, p. reflexivity. discriminate. discriminate. discriminate.
+  - destruct m, p.
+    + discriminate.
+    + discriminate.
+    + discriminate.
+    + simpl. apply IHn.
+Qed.
 
 (** **** Exercise: 3 stars, advanced (split_combine)
 
@@ -1274,3 +1327,4 @@ Proof. (* FILL IN HERE *) Admitted.
 (** [] *)
 
 (* 2023-12-29 17:12 *)
+(* ref: https://gist.github.com/pedrominicz/b6fa63a411b5aa7930671602efb09042 *)
