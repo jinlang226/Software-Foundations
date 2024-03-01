@@ -25,7 +25,7 @@ Temporal Logic is used to reason about the ordering of events in time, with appl
 
 ## Meta Logic
 
-Meta Logic is a branch of logic that studies the properties of various logical systems themselves. It involves reasoning about logics, their expressiveness, consistency, completeness, and other properties.
+Meta Logic is a branch of logic that studies the properties of various logical systems themselves. It involves reasoning about logic, expressiveness, consistency, completeness, and other properties.
 
 **Example**: A meta-logical statement might involve the completeness theorem for propositional logic, which asserts that if a formula is true under every interpretation, then there is a proof of the formula within the logic system. This is more about the property of the logic system itself rather than a statement within the system.
 
